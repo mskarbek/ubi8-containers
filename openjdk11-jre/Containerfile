@@ -1,0 +1,11 @@
+ARG registry
+ARG repository
+ARG tag
+ARG release
+
+FROM ${registry}/${repository}:${tag}-${release}
+
+RUN dnf -y install --setopt=install_weak_deps=False --nodocs java-11-openjdk-headless\
+ && dnf -y clean all\
+ && rm -rf /var/log/dnf\* /var/log/hawkey\* /var/log/rhsm/\
+ && rm -rf /var/cache/*

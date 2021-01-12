@@ -1,0 +1,2 @@
+Dockerfile
+openssh/rootfs/root/.ssh/*
