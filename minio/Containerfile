@@ -1,0 +1,16 @@
+ARG registry
+ARG repository
+ARG tag
+ARG release
+
+FROM ${registry}/${repository}:${tag}-${release}
+
+COPY rootfs/ /
+
+RUN curl -L -o /usr/local/bin/minio https://dl.min.io/server/minio/release/linux-amd64/minio\
+ && chmod 0755 /usr/local/bin/minio\
+ && systemctl enable minio.service
+
+EXPOSE 9000/tcp
+
+VOLUME /var/lib/minio/data

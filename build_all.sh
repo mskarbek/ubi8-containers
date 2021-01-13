@@ -118,3 +118,11 @@ podman build\
  --build-arg=release=${RELEASE}\
  --squash\
  -t ${REGISTRY}/${REPOSITORY}/nginx:${TAG}-${RELEASE} nginx/
+
+podman build\
+ --build-arg=registry=${REGISTRY}\
+ --build-arg=repository=${REPOSITORY}/systemd\
+ --build-arg=tag=${TAG}\
+ --build-arg=release=${RELEASE}\
+ --squash\
+ -t ${REGISTRY}/${REPOSITORY}/minio:${TAG}-${RELEASE} minio/

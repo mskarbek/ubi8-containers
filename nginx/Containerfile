@@ -11,4 +11,4 @@ RUN dnf -y install --setopt=install_weak_deps=False --nodocs nginx\
  && rm -rf /var/log/dnf* /var/log/hawkey* /var/log/rhsm/\
  && rm -rf /var/cache/*
 
-EXPOSE 80
+EXPOSE 80/tcp
