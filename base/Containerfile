@@ -11,5 +11,5 @@ RUN dnf -y clean all\
  && dnf -y update --setopt=install_weak_deps=False --nodocs rpm\* dnf\*\
  && dnf -y update --setopt=install_weak_deps=False --nodocs\
  && dnf -y clean all\
- && rm -rf /var/log/dnf\* /var/log/hawkey\* /var/log/rhsm/\
+ && rm -rf /var/log/dnf* /var/log/hawkey* /var/log/rhsm/\
  && rm -rf /var/cache/*
