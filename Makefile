@@ -1,106 +1,80 @@
-registry = registry.skarbek.name
-repository = ubi8
-tag = 2021.01.13
-release = 1
+include common/args.mk
 
-.PHONY: base systemd base-all systemd-all all
+.PHONY: base base-openjdk8-jre base-openjdk8-jdk base-openjdk11-jre base-openjdk11-jdk base-nodejs10 base-nodejs14 base-python36 base-python38 base-ansible
+.PHONY: systemd systemd-openjdk8-jre systemd-openjdk8-jdk systemd-openjdk11-jre systemd-openjdk11-jdk systemd-nodejs10 systemd-nodejs14
+.PHONY: systemd-python36 systemd-python38 systemd-ansible systemd-openssh systemd-consul systemd-nginx systemd-minio systemd-nexus
 
 all: base-all systemd-all
 
-systemd-all: systemd systemd-openjdk systemd-nodejs systemd-services
+systemd-all: systemd-languages systemd-services
+
+systemd-services: systemd-ansible systemd-openssh systemd-consul systemd-nginx systemd-minio systemd-nexus
+
+systemd-nexus: systemd-openjdk8-jre
+	@$(MAKE) -C nexus build repository=$(repository_prefix)/systemd/openjdk8-jre repository_prefix=$(repository_prefix)/systemd
+
+systemd-minio: systemd
+	@$(MAKE) -C minio build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
+
+systemd-nginx: systemd
+	@$(MAKE) -C nginx build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
+
+systemd-consul: systemd
+	@$(MAKE) -C consul build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
+
+systemd-openssh: systemd
+	@$(MAKE) -C openssh build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
+
+systemd-ansible: systemd-python36
+	@$(MAKE) -C ansible build repository=$(repository_prefix)/systemd/python36 repository_prefix=$(repository_prefix)/systemd
+
+systemd-languages: systemd-openjdk systemd-nodejs systemd-python
 
 systemd-openjdk: systemd-openjdk8 systemd-openjdk11
 
 systemd-openjdk8: systemd-openjdk8-jre systemd-openjdk8-jdk
 
-systemd-openjdk8-jre:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/systemd/openjdk8-jre:$(tag)-$(release) openjdk8-jre/
-
-systemd-openjdk8-jdk:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd/openjdk8-jre\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/systemd/openjdk8-jdk:$(tag)-$(release) openjdk8-jdk/
-
 systemd-openjdk11: systemd-openjdk11-jre systemd-openjdk11-jdk
-
-systemd-openjdk11-jre:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/systemd/openjdk11-jre:$(tag)-$(release) openjdk11-jre/
-
-systemd-openjdk11-jdk:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd/openjdk11-jre\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/systemd/openjdk11-jdk:$(tag)-$(release) openjdk11-jdk/
 
 systemd-nodejs: systemd-nodejs10 systemd-nodejs14
 
-systemd-nodejs10:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/systemd/nodejs10:$(tag)-$(release) nodejs10/
+systemd-python: systemd-python36 systemd-python38
 
-systemd-nodejs14:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/systemd/nodejs14:$(tag)-$(release) nodejs14/
+systemd-openjdk8-jre: systemd
+	@$(MAKE) -C openjdk8-jre build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
 
-systemd-services: openssh nginx minio
+systemd-openjdk8-jdk: systemd-openjdk8-jre
+	@$(MAKE) -C openjdk8-jdk build repository=$(repository_prefix)/systemd/openjdk8-jre repository_prefix=$(repository_prefix)/systemd
 
-openssh:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/openssh:$(tag)-$(release) openssh/
+systemd-openjdk11-jre: systemd
+	@$(MAKE) -C openjdk11-jre build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
 
-nginx:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/nginx:$(tag)-$(release) nginx/
+systemd-openjdk11-jdk: systemd-openjdk11-jre
+	@$(MAKE) -C openjdk11-jdk build repository=$(repository_prefix)/systemd/openjdk11-jre repository_prefix=$(repository_prefix)/systemd
 
-minio:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/systemd\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/minio:$(tag)-$(release) minio
+systemd-nodejs10: systemd
+	@$(MAKE) -C nodejs10 build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
 
-base-all: base base-openjdk base-nodejs
+systemd-nodejs14: systemd
+	@$(MAKE) -C nodejs14 build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
+
+systemd-python36: systemd
+	@$(MAKE) -C python36 build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
+
+systemd-python38: systemd
+	@$(MAKE) -C python38 build repository=$(repository_prefix)/systemd repository_prefix=$(repository_prefix)/systemd
+
+systemd: base
+	@$(MAKE) -C systemd build repository=$(repository_prefix)/base
+
+base-all: base-languages base-services
+
+base-services: base-ansible
+
+base-ansible: base-python36
+	@$(MAKE) -C ansible build repository=$(repository_prefix)/base/python36 repository_prefix=$(repository_prefix)/base
+
+base-languages: base-openjdk base-nodejs base-python
 
 base-openjdk: base-openjdk8 base-openjdk11
 
@@ -110,70 +84,31 @@ base-openjdk11: base-openjdk11-jre base-openjdk11-jdk
 
 base-nodejs: base-nodejs10 base-nodejs14
 
-base-openjdk8-jre:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/base\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/base/openjdk8-jre:$(tag)-$(release) openjdk8-jre/
+base-python: base-python36 base-python38
 
-base-openjdk8-jdk:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/base/openjdk8-jre\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/base/openjdk8-jdk:$(tag)-$(release) openjdk8-jdk/
+base-openjdk8-jre: base
+	@$(MAKE) -C openjdk8-jre build repository=$(repository_prefix)/base repository_prefix=$(repository_prefix)/base
 
-base-openjdk11-jre:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/base\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/base/openjdk11-jre:$(tag)-$(release) openjdk11-jre/
+base-openjdk8-jdk: base-openjdk8-jre
+	@$(MAKE) -C openjdk8-jdk build repository=$(repository_prefix)/base/openjdk8-jre repository_prefix=$(repository_prefix)/base
 
-base-openjdk11-jdk:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/base/openjdk11-jre\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/base/openjdk11-jdk:$(tag)-$(release) openjdk11-jdk/
+base-openjdk11-jre: base
+	@$(MAKE) -C openjdk11-jre build repository=$(repository_prefix)/base repository_prefix=$(repository_prefix)/base
 
-base-nodejs10:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/base\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/base/nodejs10:$(tag)-$(release) nodejs10/
+base-openjdk11-jdk: base-openjdk11-jre
+	@$(MAKE) -C openjdk11-jdk build repository=$(repository_prefix)/base/openjdk11-jre repository_prefix=$(repository_prefix)/base
 
-base-nodejs14:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/base\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/base/nodejs14:$(tag)-$(release) nodejs14/
+base-nodejs10: base
+	@$(MAKE) -C nodejs10 build repository=$(repository_prefix)/base repository_prefix=$(repository_prefix)/base
 
-systemd:
-	@podman build\
-	 --build-arg=registry=$(registry)\
-	 --build-arg=repository=$(repository)/base\
-	 --build-arg=tag=$(tag)\
-	 --build-arg=release=$(release)\
-	 --squash\
-	 -t $(registry)/$(repository)/systemd:$(tag)-$(release) systemd/
+base-nodejs14: base
+	@$(MAKE) -C nodejs14 build repository=$(repository_prefix)/base repository_prefix=$(repository_prefix)/base
+
+base-python36: base
+	@$(MAKE) -C python36 build repository=$(repository_prefix)/base repository_prefix=$(repository_prefix)/base
+
+base-python38: base
+	@$(MAKE) -C python38 build repository=$(repository_prefix)/base repository_prefix=$(repository_prefix)/base
 
 base:
-	@podman build\
-	 --squash-all\
-	 -t $(registry)/$(repository)/base:$(tag)-$(release) base/
+	@$(MAKE) -C base build repository=$(repository_prefix)

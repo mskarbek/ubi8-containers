@@ -5,8 +5,4 @@ ARG release
 
 FROM ${registry}/${repository}:${tag}-${release}
 
-RUN dnf -y module enable nodejs:10\
- && dnf -y install --setopt=install_weak_deps=False --nodocs nodejs npm\
- && dnf -y clean all\
- && rm -rf /var/log/dnf* /var/log/hawkey* /var/log/rhsm/\
- && rm -rf /var/cache/*
+COPY Makefile /Makefile
