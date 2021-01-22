@@ -1,0 +1,19 @@
+ARG registry
+ARG repository
+ARG tag
+ARG release
+
+FROM ${registry}/${repository}:${tag}-${release}
+
+COPY rootfs/ /
+
+RUN dnf -yq install getenvoy-envoy\
+ && systemctl enable envoy.service\
+ && dnf -yq clean all\
+ && rm -rf /var/cache/* /var/log/dnf* /var/log/hawkey* /var/log/rhsm/
+
+EXPOSE 80/tcp
+EXPOSE 443/tcp
+EXPOSE 8404/tcp
+
+VOLUME [ "/etc/envoy/cfg.d", "/etc/pki/tls/envoy" ]  
