@@ -24,9 +24,8 @@ RUN dnf -yq install --setopt=install_weak_deps=False --nodocs systemd procps-ng\
     systemd-udev-trigger.service\
     systemd-udevd.service\
  && systemctl enable app-chown.service\
- && dnf -y clean all\
- && rm -rf /var/log/dnf* /var/log/hawkey* /var/log/rhsm/\
- && rm -rf /var/cache/*
+ && dnf -yq clean all\
+ && rm -rf /var/cache/* /var/log/dnf* /var/log/hawkey* /var/log/rhsm/
 
 STOPSIGNAL SIGRTMIN+3
 
