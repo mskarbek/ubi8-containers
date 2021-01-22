@@ -5,9 +5,15 @@ ARG release
 
 FROM ${registry}/${repository}:${tag}-${release}
 
-RUN dnf -yq install --setopt=install_weak_deps=False --nodocs nginx\
- && systemctl enable nginx.service\
- && dnf -yq clean all\
- && rm -rf /var/cache/* /var/log/dnf* /var/log/hawkey* /var/log/rhsm/
+COPY rootfs/ /
 
-EXPOSE 80/tcp
+ARG nexus_version=3.29.2-02
+
+RUN mkdir /usr/sonatype\
+ && cd /usr/sonatype\
+ && curl -L https://download.sonatype.com/nexus/3/nexus-${nexus_version}-unix.tar.gz|tar zx\
+ && systemctl enable nexus-chown.service nexus.service
+
+EXPOSE 8081/tcp
+
+VOLUME [ "/var/lib/nexus/sonatype-work" ]

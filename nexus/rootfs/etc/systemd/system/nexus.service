@@ -1,0 +1,22 @@
+[Unit]
+Description=Nexus Repository OSS
+Documentation=https://help.sonatype.com/repomanager3
+After=network.target nss-lookup.target systemd-sysusers.service
+Requires=systemd-sysusers.service
+
+[Service]
+WorkingDirectory=/var/lib/nexus
+Type=forking
+User=nexus
+Group=nexus
+EnvironmentFile=/etc/default/minio
+ExecStartPre=/bin/bash -c "if [ -z \"${MINIO_VOLUMES}\" ]; then echo \"Variable MINIO_VOLUMES not set in /etc/default/minio\"; exit 1; fi"
+ExecStartPre=/usr/bin/chmod -R minio:minio $MINIO_VOLUMES
+ExecStart=/opt/nexus-3.15.2-01/bin/nexus start
+ExecStop=/opt/nexus-3.15.2-01/bin/nexus stop
+LimitNOFILE=65536
+Restart=on-abort
+TimeoutSec=600
+
+[Install]
+WantedBy=multi-user.target
