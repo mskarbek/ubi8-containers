@@ -5,6 +5,6 @@ ARG release
 
 FROM ${registry}/${repository}:${tag}-${release}
 
-RUN dnf -yq install --setopt=install_weak_deps=False --nodocs java-11-openjdk-headless\
+RUN dnf -yq install --setopt=install_weak_deps=False --nodocs java-11-openjdk-headless tomcat-native apr\
  && dnf -yq clean all\
  && rm -rf /var/cache/* /var/log/dnf* /var/log/hawkey* /var/log/rhsm/
