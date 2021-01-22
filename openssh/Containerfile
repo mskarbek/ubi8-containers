@@ -5,4 +5,8 @@ ARG release
 
 FROM ${registry}/${repository}:${tag}-${release}
 
-COPY Makefile /Makefile
+COPY rootfs/ /
+
+RUN dnf -yq install --setopt=install_weak_deps=False --nodocs openssh-server openssh-clients\
+ && dnf -yq clean all\
+ && rm -rf /var/cache/* /var/log/dnf* /var/log/hawkey* /var/log/rhsm/

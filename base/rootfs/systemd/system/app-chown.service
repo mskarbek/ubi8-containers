@@ -1,0 +1,10 @@
+[Unit]
+Description=App chown
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/chown -R app:app /opt/app
+RemainAfterExit=false
+
+[Install]
+WantedBy=multi-user.target

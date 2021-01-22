@@ -5,4 +5,9 @@ ARG release
 
 FROM ${registry}/${repository}:${tag}-${release}
 
-COPY Makefile /Makefile
+RUN dnf -yq install --setopt=install_weak_deps=False --nodocs nginx\
+ && systemctl enable nginx.service\
+ && dnf -yq clean all\
+ && rm -rf /var/cache/* /var/log/dnf* /var/log/hawkey* /var/log/rhsm/
+
+EXPOSE 80/tcp

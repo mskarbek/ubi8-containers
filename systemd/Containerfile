@@ -5,4 +5,29 @@ ARG release
 
 FROM ${registry}/${repository}:${tag}-${release}
 
-COPY Makefile /Makefile
+COPY rootfs/ /
+
+RUN dnf -yq install --setopt=install_weak_deps=False --nodocs systemd procps-ng\
+ && systemctl mask\
+    console-getty.service\
+    dev-hugepages.mount\
+    dnf-makecache.timer\
+    getty.target\
+    kdump.service\
+    sys-fs-fuse-connections.mount\
+    systemd-homed.service\
+    systemd-logind.service\
+    systemd-machine-id-commit.service\
+    systemd-random-seed.service\
+    systemd-remount-fs.service\
+    systemd-resolved.service\
+    systemd-udev-trigger.service\
+    systemd-udevd.service\
+ && systemctl enable app-chown.service\
+ && dnf -y clean all\
+ && rm -rf /var/log/dnf* /var/log/hawkey* /var/log/rhsm/\
+ && rm -rf /var/cache/*
+
+STOPSIGNAL SIGRTMIN+3
+
+ENTRYPOINT [ "/usr/sbin/init" ]

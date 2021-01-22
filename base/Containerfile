@@ -1,3 +1,18 @@
-FROM scratch
+ARG registry=registry.access.redhat.com
+ARG repository=ubi8/ubi
+ARG tag=8.3
 
-COPY Makefile /Makefile
+FROM ${registry}/${repository}:${tag}
+
+RUN useradd -d /opt/app app
+
+COPY rootfs/ /
+
+RUN chown -R app:app /opt/app\
+ && update-ca-trust\
+ && dnf -yq clean all\
+ && dnf config-manager --set-disabled ubi*\
+ && dnf -yq update --setopt=install_weak_deps=False --nodocs rpm* dnf*\
+ && dnf -yq update --setopt=install_weak_deps=False --nodocs\
+ && dnf -yq clean all\
+ && rm -rf /var/cache/* /var/log/dnf* /var/log/hawkey* /var/log/rhsm/
