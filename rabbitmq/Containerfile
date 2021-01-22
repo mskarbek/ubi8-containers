@@ -10,8 +10,7 @@ COPY rootfs/ /
 RUN dnf -yq install erlang rabbitmq-server\
  && systemctl enable rabbitmq-config.service rabbitmq-server.service\
  && dnf -yq clean all\
- && rm -rf /var/log/dnf* /var/log/hawkey* /var/log/ehsm/\
- && rm -rf /var/cache
+ && rm -rf /var/cache/* /var/log/dnf* /var/log/hawkey* /var/log/rhsm/
 
 ENV RABBITMQ_USR=rabbit-user\
     RABBITMQ_PASS=rabbit-pass
